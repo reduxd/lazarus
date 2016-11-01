@@ -1,0 +1,40 @@
+<script>
+function repaint() {
+	Scroller.setPosition(Scroller.scrollTop + 1);
+}
+
+function expandlist(id, lis_id) {
+	var lis = $$(lis_id);
+	for (var i=0;i<lis.length; ++i) {
+		lis[i].removeAttribute('style');
+	}
+	$$(id).style.display = 'none';
+	window.setTimeout(repaint, 0);
+}
+</script>
+
+<style>
+#career dl {
+	position: relative;
+	top: -3px;
+}
+</style>
+
+<div class="padded">
+	<div class="featured_subheader">
+		Store
+	</div>
+	<ul class="featured_list" id="top_paid">
+		{% for track in tracks %}
+			<li class='clearfix' cmd='download/{{ track.id }}' >
+				<div class="content clearfix">
+					<div class="title ellipsis">{{ track.title }}</div>
+					{{ track.artist }}
+				</div>
+			</li>
+			<div class="clear"> </div>
+		{% else %}
+			Store is empty!
+		{% endfor %}
+	</ul>
+</div>
