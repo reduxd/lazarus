@@ -24,9 +24,11 @@ tapplications.post('/index.php', multipart.array(), function(req, res) {
 
 	// scoremanager beta
 	if(req.body.method == 'scores_add') {
-		require('../managers/scoreManager.js').submitNewScore(req.body.scores, req.io, function() {
-			console.log('emitted event');
-		});
+		/*
+			Eventually re-implement ScoreManager.
+
+			Handle TTR4 "scores_add" command here.
+		 */
 	}
 });
 
