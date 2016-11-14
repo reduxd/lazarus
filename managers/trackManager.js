@@ -1,3 +1,12 @@
+/*
+	trackManager
+
+	All tracks within the CDN directory are analyzed and returned
+	in an array with their names, artists, and difficulties. Most
+	if not all of the code and techniques used here are also
+	found in downloadManager, as they both access the song files.
+ */
+
 var plist = require('plist');
 var async = require('async');
 var bplist = require('bplist-parser');
@@ -11,10 +20,21 @@ exports.getTracks = function(cdnPath, callback) {
 		var tmpTracks = [];
 
 		async.each(trackDirs, function(curDir, callback) {
+			/*
+				Songs come in a variety of formats due to the workings of plist.
+				So far, I've seen text plists, text plists with embedded binary,
+				and binary plists. Only text plists with embedded binary have
+				been implemented, but the parser should be able to handle the
+				other two types without much problem.
+			 */
 			var outsideObj = plist.parse(fs.readFileSync(cdnPath + '/' + curDir + '/info.plist', 'utf8'));
 
-			//xml with binary
+			/*
+			 	XML with Binary
 
+			 	Keys are read from the song plists, and the data is used to
+			 	generate an array of songs available.
+			 */
 			bplist.parseFile(outsideObj['data'], function(err, insideObj) {
 				if (err) throw err;
 

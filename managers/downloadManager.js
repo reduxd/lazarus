@@ -1,3 +1,15 @@
+/*
+	downloadManager
+
+	This manager is responsible for song downloads. When the game requests
+	a song ID for download, it expects a plist with song information.
+	Because we don't have source plists, we have to rebuild them based off
+	of the metadata plists when downloaded. This is done on the fly as it
+	only involves reading files. Themes are also compressed on the fly as
+	all songs we have saved are provided as folders, allowing for easy
+	addition of songs floating on the internet as well as compatibility.
+ */
+
 var plist = require('plist');
 var async = require('async');
 var bplist = require('bplist-parser');
@@ -6,10 +18,23 @@ var path = require('path');
 var archiver = require('archiver');
 
 exports.getSingleTrackMetadata = function(songId, callback) {
+	/*
+	 	Songs come in a variety of formats due to the workings of plist.
+	 	So far, I've seen text plists, text plists with embedded binary,
+	 	and binary plists. Only text plists with embedded binary have
+	 	been implemented, but the parser should be able to handle the
+	 	other two types without much problem.
+	 */
 	var outsideObj = plist.parse(fs.readFileSync(require('../tt.js').cdnPath + '/tracks/' + songId + '.track/info.plist', 'utf8'));
 
-	//xml with binary
+	/*
+		XML with Binary
 
+		Keys are read from the song plists, and the data is used to
+		recreate download plists through a json conversion.
+
+		NOTE: The use of "cdnHost" here is ugly and should be redone.
+	 */
 	bplist.parseFile(outsideObj['data'], function(err, insideObj) {
 		if (err) throw err;
 
@@ -69,10 +94,16 @@ exports.getSingleTrackMetadata = function(songId, callback) {
 	});
 }
 
+/*
+	Helper, don't exactly remember what this does.
+ */
 exports.getSongFilePath = function(songId, songFile, callback) {
 	callback('tracks/' + songId + '.track/' + songFile);
 }
 
+/*
+	Theme zipper
+ */
 exports.getThemeZip = function(themeName, callback) {
 	var theme = archiver('zip');
 	var noZipName = themeName.replace('.zip', '');
