@@ -45,20 +45,6 @@ exports.cdnPath = process.argv[2];
 exports.cdnHost = process.argv[3];
 
 /*
-    Router dependencies
-
-    These files handle different endpoints requested by the game. Preferably a
-    file per endpoint, but may change depending on the use case, such as one
-    liners.
-
-    storeRouter - Handles store requests at "/ttr/ttr4cmd/store".
-    tapplicationsRouter - Handles song downloads, scores, and other online game
-        functions at "/tapplications/ttr/v3.0".
- */
-var storeRouter = require('./routers/storeRouter.js');
-var tapplicationsRouter = require('./routers/tapplicationsRouter.js');
-
-/*
     Manager dependencies
 
     These files handle general server functions used in the main server or in
@@ -78,10 +64,16 @@ var cacheManager = require('./managers/cacheManager.js');
     messy code. Also allows easy endpoint addition as well as preventing
     errors with others.
 
-    For purpose and definition of each, check out the "Router dependencies"
+    storeRouter - Handles store requests at "/ttr/ttr4cmd/store".
+    manifestRouter - Handles manifest requests at "/ttr/ttr4cmd/manifest".
+    tapplicationsRouter - Handles song downloads, scores, and other online game
+        functions at "/tapplications/ttr/v3.0".
  */
-app.use('/ttr/ttr4cmd/store', storeRouter);
-app.use('/tapplications/ttr/v3.0', tapplicationsRouter);
+app.use('/ttr/ttr4cmd/store', require('./routers/storeRouter.js'));
+app.use('/ttr/ttr4cmd/manifest', require('./routers/manifestRouter.js'));
+app.use('/ttr/ttr4cmd/register', require('./routers/registerRouter.js'));
+app.use('/tapservices/v1/tapcoresocial', require('./routers/tapcoresocialRouter.js'));
+app.use('/tapplications/ttr/v3.0', require('./routers/tapplicationsRouter.js'));
 
 server.listen(3000, function () {
     console.log('It\'s lit!');
@@ -93,5 +85,5 @@ server.listen(3000, function () {
         faster and more efficient than doing it every time the
         endpoint is hit.
      */
-    cacheManager.generateFeatured();
+    //cacheManager.generateFeatured();
 });
