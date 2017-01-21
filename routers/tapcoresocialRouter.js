@@ -16,57 +16,56 @@ var tapcoresocial = express.Router();
  authentic_user - ?
  */
 tapcoresocial.post('/index.php', multipart.array(), function(req, res) {
-    if(req.body.method == 'get_profile_and_networks_list') {
+    if(req.body.method == ('get_profile_and_networks_list' || 'authentic_user')) {
         /*
          get_profile_and_networks_list
          */
 
-        var profile_response = {
-            content: {
-                profile: {
-                    username: null,
-                    email: null,
-                    avatar_src: null,
-                    large_avatar_src: null,
-                    small_avatar_src: null,
-                    level_description: '<b>rileyh</b><br>TP: 2400<br>Level:1' },
-                    networks: [],
-                    summary: {
-                        points: '0',
-                        level: '1',
-                        percentage: '0',
-                        next_level: '5',
-                        progress: '0 / 5',
-                        total_coins: '2000',
-                        credits: '50',
-                        next_text2: 'next_text2',
-                        points_needed_for_current_level: '0',
-                        points_needed_for_next_level: '5'
-                    }
-            },
-            token_info: 'token_info',
-            status: {
-                code: 1,
-                reason: 'Success'
+        var mongoQuery = req.db.collection('users').find({uid: {$in: [req.body.token_info]}});
+
+        mongoQuery.count(function (err, count) {
+            if(count == 0) {
+                /*
+                 this probably shouldn't be empty...
+                 */
+                res.send('');
+            } else {
+
+                mongoQuery.nextObject(function (err, doc) {
+                    var profile_response = {
+                        content: {
+                            profile: {
+                                username: doc.username,
+                                email: null,
+                                avatar_src: null,
+                                large_avatar_src: null,
+                                small_avatar_src: null,
+                                level_description: '<b>rileyh</b><br>TP: 2400<br>Level:1' },
+                            networks: [],
+                            summary: {
+                                points: '0',
+                                level: '1',
+                                percentage: '0',
+                                next_level: '5',
+                                progress: '0 / 5',
+                                total_coins: '2000',
+                                credits: '50',
+                                next_text2: 'Welcome ' + doc.username + '!',
+                                points_needed_for_current_level: '0',
+                                points_needed_for_next_level: '5'
+                            }
+                        },
+                        token_info: doc.uid,
+                        status: {
+                            code: 1,
+                            reason: 'Success'
+                        }
+                    };
+
+                    res.send(profile_response);
+                });
             }
-        };
-
-        res.send(plist.build(profile_response));
-    } else if(req.body.method == 'authentic_user') {
-        /*
-         authentic_user
-         */
-
-        var authentic_response = {
-            token_info: 'token_info',
-            status: {
-                code: 1,
-                reason: 'Success'
-            },
-            content: []
-        };
-
-        res.send(plist.build(authentic_response));
+        });
     }
 });
 

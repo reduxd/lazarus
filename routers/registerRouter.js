@@ -4,6 +4,7 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
+var mongo = require('mongodb').MongoClient;
 
 var register = express.Router();
 
@@ -25,14 +26,26 @@ register.post('/create_user', bodyParser.urlencoded({extended: false}), function
     var screenname = req.body.screenname;
     var avatar_id = req.body.avatar_id;
     var newsletter = req.body.newsletter;
-    var uidInfo = req.body.uidInfo;
 
-    /*
-     implement checking to see if uid or screenname are already taken
+    //if device isn't provisioned then body/form uid is crap?
+    var uidInfo = req.cookies.uidInfo;
 
-     don't send an auto ok
-     */
-    res.send('ok');
+    req.db.collection('users').insertOne({username: screenname, uid: uidInfo}, function(err, r) {
+        res.send('ok');
+    });
+});
+
+register.get('/check_screenname', function (req, res) {
+       var screenname = req.query.screenname;
+
+    req.db.collection('users').find({username: {$in: [screenname]}}).count(function (err, count) {
+       if(count == 0) {
+           res.send('""');
+       } else {
+           res.send('"Unavailable"');
+       }
+    });
+
 });
 
 register.get('/freemusic', function (req, res) {

@@ -17,6 +17,8 @@
     Nunjucks - Rendering of song listings using prebuilt templates.
  */
 var express = require('express');
+var expressDb = require('express-mongo-db');
+var cookies = require('cookie-parser');
 var nunjucks = require('nunjucks');
 
 /*
@@ -24,6 +26,9 @@ var nunjucks = require('nunjucks');
  */
 var app = express();
 var server = require('http').Server(app);
+
+app.use(expressDb('mongodb://127.0.0.1:27017/tt'));
+app.use(cookies());
 
 nunjucks.configure('views', {
     express: app,
